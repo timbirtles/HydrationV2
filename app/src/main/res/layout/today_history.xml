@@ -1,0 +1,97 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="?attr/colorSurface"
+    android:layout_marginTop="2dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="2dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    android:elevation="0dp"
+    app:cardElevation="0dp"
+    app:cardMaxElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/history_item_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="5dp"
+            android:padding="10dp"
+            android:src="@drawable/missing_image"
+            android:background="@drawable/rounded_text_bg"
+            android:textColor="?colorOnPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_drinkName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Coffee"
+            android:layout_marginStart="5dp"
+            android:textColor="?colorPrimary"
+            app:layout_constraintStart_toEndOf="@id/iv_icon"
+            app:layout_constraintTop_toTopOf="@id/iv_icon"/>
+
+        <TextView
+            android:id="@+id/timeAgo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3hrs ago"
+            android:layout_marginStart="5dp"
+            android:textColor="?colorPrimary"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/timeBreak"
+            app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
+
+        <TextView
+            android:id="@+id/timeBreak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="•"
+            android:layout_marginStart="5dp"
+            android:textColor="?colorPrimary"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/timeExact"
+            app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
+
+        <TextView
+            android:id="@+id/timeExact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15:35"
+            android:layout_marginStart="5dp"
+            android:textColor="?colorPrimary"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/iv_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
+
+        <TextView
+            android:id="@+id/amountDrunk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="300ml"
+            android:layout_marginEnd="5dp"
+            android:textColor="?colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_icon"
+            app:layout_constraintBottom_toBottomOf="@id/iv_icon"/>
+
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
