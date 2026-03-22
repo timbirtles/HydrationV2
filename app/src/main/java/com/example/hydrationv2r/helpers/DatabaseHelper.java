@@ -1,9 +1,18 @@
 package com.example.hydrationv2r.helpers;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.example.hydrationv2r.models.DrinkModel;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -25,15 +34,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_LOG_TIMESTAMP = "timestamp";
     public static final String COL_IS_HIDDEN = "is_hidden";
 
-    // Stores whether a day has been excluded from stats
-    public static final String TABLE_DAY_STATUS = "day_status";
+
+    public static final String TABLE_DAY_STATUS = "day_status"; // Stores whether a day has been excluded from stats
     public static final String COL_DAY_DATE = "day_date";
     public static final String COL_IS_EXCLUDED="is_excluded";
 
+    private static final String DATABASE_NAME = "hydration_db";
+    private static final int DATABASE_VERSION = 1;
 
     private static DatabaseHelper instance;
 
-    public DatabaseHelper(Context context) { super(context, "hydrationv2", null, 1); }
+    private DatabaseHelper(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
 
     // Ensure a singleton pattern
     public static synchronized DatabaseHelper getInstance(Context context) {
@@ -58,7 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             String createLogsTable = "CREATE TABLE " + TABLE_LOGS + " (" +
                     COL_LOG_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COL_LOG_DATE + " TEXT, " +
+                    COL_LOG_DATE + " INTEGER, " +
                     COL_LOG_DRINK_ID + " INTEGER, " +
                     COL_LOG_AMOUNT + " INTEGER, " +
                     COL_LOG_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
@@ -97,6 +108,81 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.e("DatabaseHelper", "onUpgrade - Failed to create new tables: " + e);
         }
             onCreate(db);
+    }
+
+    /**
+     * Queries the drinks table to see which drink types are 'active'
+     * @return DrinkModel list of active drinks
+     */
+    public List<DrinkModel> getActiveDrinks() {
+        List<DrinkModel> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_DRINKS + " WHERE " + COL_IS_HIDDEN + " = 0", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(new DrinkModel(cursor.getInt(0), cursor.getString(1),
+                        cursor.getInt(2), cursor.getString(3), cursor.getInt(4)));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    /**
+     * Total of all logs for the current day, calculated from midnight in the user's current timezone
+     * @return hydration amount in ML
+     */
+    public int getTodayHydration() {
+        long startOfToday = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        int total = 0;
+
+        // Sum from the logs table for today's date
+        String query = "SELECT SUM(" + COL_LOG_AMOUNT + ") FROM " + TABLE_LOGS + " WHERE " + COL_LOG_DATE + " >= ?";
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(startOfToday)})) {
+            if (cursor != null && cursor.moveToFirst()) {
+                total = cursor.getInt(0);
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error getting hydration: ", e);
+        }
+        return total;
+    }
+
+    /**
+     * Create a new log in the logs table with a drink.
+     * Drink size can be customised and is not limited to the drink type.
+     */
+    public void logDrink(String timestamp, int drinkId, int amountMl) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_LOG_DATE, timestamp);
+        values.put(COL_LOG_DRINK_ID, drinkId);
+        values.put(COL_LOG_AMOUNT, amountMl);
+        db.insert(TABLE_LOGS, null, values);
+
+        Log.d("DVB", "addrink");
+    }
+
+    public DrinkModel getDrinkById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        DrinkModel drink = null;
+
+        Cursor cursor = db.query(TABLE_DRINKS, null, "id = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            int ml = cursor.getInt(cursor.getColumnIndexOrThrow("ml"));
+            String icon = cursor.getString(cursor.getColumnIndexOrThrow("icon"));
+            int colour = cursor.getInt(cursor.getColumnIndexOrThrow("colour"));
+            drink = new DrinkModel(id, name, ml, icon, colour);
+            cursor.close();
+        }
+        return drink;
     }
 
 }
