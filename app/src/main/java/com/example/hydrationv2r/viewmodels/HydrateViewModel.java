@@ -13,7 +13,9 @@ import java.time.Instant;
 
 public class HydrateViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> todayTotal = new MutableLiveData<>(0);
+    private final MutableLiveData<Boolean> goalReachedEvent = new MutableLiveData<>();
     DatabaseHelper db;
+    private int lastSeenTotal = -1;
 
     public HydrateViewModel(Application application) {
         super(application);
@@ -38,8 +40,30 @@ public class HydrateViewModel extends AndroidViewModel {
         return todayTotal;
     }
 
+    public MutableLiveData<Boolean> getGoalReachedEvent() {
+        return goalReachedEvent;
+    }
+
+    public void consumeGoalEvent() {
+        goalReachedEvent.setValue(false);
+    }
+
     public void refreshTodayTotal() {
         int total = db.getTodayHydration();
         todayTotal.setValue(total);
+    }
+
+    public void checkGoal(int currentTotal, int goal) {
+
+        // Set to current total on load
+        if (lastSeenTotal == -1) {
+            lastSeenTotal = currentTotal;
+            return;
+        }
+
+        if (lastSeenTotal < goal && currentTotal >= goal) {
+            goalReachedEvent.setValue(true);
+        }
+        lastSeenTotal = currentTotal;
     }
 }

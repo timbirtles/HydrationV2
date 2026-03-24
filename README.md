@@ -14,7 +14,8 @@ This requires a fundamental rewrite of the database architecture and a refresh o
 - [x] View hydration status
 - [x] Log a drink
 - [ ] Day history quick-view (See drink count per drink on the Home screen)
-- [ ] Animate hydration UI (Text, liquid)
+- [x] Animate hydration UI (Text, liquid)
+- [ ] Ability to disable animations 🔥
 - [ ] View the days history (drink type, size, time), time plot🔥 and delete individual logs
 - [ ] Add and customise drinks
 - [ ] Update hydration goal
