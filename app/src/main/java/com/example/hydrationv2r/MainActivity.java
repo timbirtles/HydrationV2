@@ -64,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
 
     private ObjectAnimator currentAnimator;
 
+    public void GoHome() {
+        if (binding != null && binding.bottomNavigation != null) {
+            binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+        }
+    }
+
     public void wave(float amount) {
         WaveView waveView = findViewById(R.id.wave_view);
         float targetHeight = amount;

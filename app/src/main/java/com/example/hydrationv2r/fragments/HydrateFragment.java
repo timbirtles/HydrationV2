@@ -7,22 +7,30 @@ import android.animation.ValueAnimator;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.hydrationv2r.R;
+import com.example.hydrationv2r.helpers.DatabaseHelper;
 import com.example.hydrationv2r.viewmodels.HydrateViewModel;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.DecimalFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -54,7 +62,7 @@ public class HydrateFragment extends Fragment {
         tv_dateTitle.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy")));
 
         // Load log drink fragment by default
-        changeChildFragment();
+        setupToggleView();
 
         viewModel = new ViewModelProvider(requireActivity()).get(HydrateViewModel.class);
 
@@ -94,8 +102,40 @@ public class HydrateFragment extends Fragment {
             }
         });
 
+        MaterialButton menuButton = view.findViewById(R.id.button_show_menu);
 
-        viewModel.refreshTodayTotal();
+        // Set up click listener to display the popup
+        menuButton.setOnClickListener(v -> showSettingsMenu(v));
+    }
+
+    private void showSettingsMenu(View anchorView) {
+        // Create PopupMenu
+        PopupMenu popup = new PopupMenu(requireContext(), anchorView);
+
+        // Inflate layout XML
+        popup.getMenuInflater().inflate(R.menu.menu_main, popup.getMenu());
+
+        // Handle item selections
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.set_drinks) {
+                // Open drinks configuration fragment
+                Fragment manageDrinksFragment = new UpdateDrinkInfoFragment();
+
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.main_fragment_container, manageDrinksFragment)
+                        .addToBackStack(null) // Allows the user to use the system back button to return home
+                        .commit();
+                return true;
+            }
+
+            // TODO: Handle other menu item IDs
+            return false;
+        });
+
+        // Display the popup over the UI
+        popup.show();
     }
 
     public void onResume() {
@@ -108,6 +148,40 @@ public class HydrateFragment extends Fragment {
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container_view, new LogDrinkFragment())
                 .addToBackStack(null)
+                .commit();
+    }
+
+    public void setupToggleView() {
+        MaterialButtonToggleGroup toggleGroup = getView().findViewById(R.id.toggleGroup);
+
+        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.button_log_drinks) {
+                    changeChildFragment(0);
+                } else if (checkedId == R.id.button_history) {
+                    changeChildFragment(1);
+                }
+            }
+        });
+        // Check default option
+        toggleGroup.check(R.id.button_log_drinks);
+    }
+
+    // Change between LogDrinkFragment and TodayHistoryFragment
+    public void changeChildFragment(int choice) {
+
+        Fragment chosen = choice == 0 ? new LogDrinkFragment() : new TodayHistoryFragment();
+
+        boolean slidingRight = choice != 0;
+        int enter = slidingRight ? R.anim.slide_in_right : R.anim.slide_in_left;
+        int exit = slidingRight ? R.anim.slide_out_left : R.anim.slide_out_right;
+
+        int popEnter = slidingRight ? R.anim.slide_in_left : R.anim.slide_in_right;
+        int popExit = slidingRight ? R.anim.slide_out_right : R.anim.slide_out_left;
+
+        getChildFragmentManager().beginTransaction()
+                .setCustomAnimations(enter, exit, popEnter, popExit)
+                .replace(R.id.fragment_container_view, chosen)
                 .commit();
     }
 

@@ -21,4 +21,59 @@ public class DrinkModel {
         this.colour = colour;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getMl() {
+        return ml;
+    }
+
+    public void setMl(int ml) {
+        this.ml = ml;
+    }
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
+    public int getColour() {
+        return colour;
+    }
+
+    public void setColour(int colour) {
+        this.colour = colour;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getTotalMl() {
+        return totalMl;
+    }
+
+    public void setTotalMl(int totalMl) {
+        this.totalMl = totalMl;
+    }
 }
