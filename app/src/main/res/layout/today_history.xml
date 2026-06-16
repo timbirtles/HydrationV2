@@ -45,29 +45,29 @@
             app:layout_constraintTop_toTopOf="@id/iv_icon"/>
 
         <TextView
-            android:id="@+id/timeAgo"
+            android:id="@+id/tv_timeAgo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="3hrs ago"
             android:layout_marginStart="5dp"
             android:textColor="?colorPrimary"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/timeBreak"
+            app:layout_constraintStart_toEndOf="@id/tv_timeBreak"
             app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
 
         <TextView
-            android:id="@+id/timeBreak"
+            android:id="@+id/tv_timeBreak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="•"
             android:layout_marginStart="5dp"
             android:textColor="?colorPrimary"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/timeExact"
+            app:layout_constraintStart_toEndOf="@id/tv_timeExact"
             app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
 
         <TextView
-            android:id="@+id/timeExact"
+            android:id="@+id/tv_timeExact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="15:35"
@@ -78,7 +78,7 @@
             app:layout_constraintTop_toBottomOf="@id/tv_drinkName"/>
 
         <TextView
-            android:id="@+id/amountDrunk"
+            android:id="@+id/tv_amountDrunk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="300ml"

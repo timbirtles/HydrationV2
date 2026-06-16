@@ -13,10 +13,10 @@ This requires a fundamental rewrite of the database architecture and a refresh o
 🔥 - Indicates feature not present in V1
 - [x] View hydration status
 - [x] Log a drink
-- [ ] Day history quick-view (See drink count per drink on the Home screen)
+- [x] Day history quick-view (See drink count per drink on the Home screen)
 - [x] Animate hydration UI (Text, liquid)
 - [ ] Ability to disable animations 🔥
-- [ ] View the days history (drink type, size, time), time plot🔥 and delete individual logs
+- [x] View the days history (drink type, size, time), ~~time plot🔥~~ and delete individual logs
 - [x] Add and customise drinks
 - [ ] Update hydration goal
 - [ ] Reset the days progress
@@ -27,8 +27,4 @@ This requires a fundamental rewrite of the database architecture and a refresh o
 - [ ] Setup hydrate reminder notifications at custom intervals 🔥
 - [ ] Create homescreen widget 🔥
 - [ ] Add sound effects 🔥
-      
-
-## Tech Stack
-Language: Java  
-Database: SQLite
+    

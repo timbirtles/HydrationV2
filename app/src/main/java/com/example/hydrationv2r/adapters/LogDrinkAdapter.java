@@ -12,11 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.hydrationv2r.R;
 import com.example.hydrationv2r.models.DrinkModel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LogDrinkAdapter extends RecyclerView.Adapter<LogDrinkAdapter.DrinkViewHolder> {
 
     private List<DrinkModel> drinks;
+    private Map<Integer, Integer> drinkCounts = new HashMap<>();
     private OnDrinkClickListener listener;
 
     public interface OnDrinkClickListener {
@@ -40,6 +43,14 @@ public class LogDrinkAdapter extends RecyclerView.Adapter<LogDrinkAdapter.DrinkV
         notifyDataSetChanged();
     }
 
+    /**
+     * Pass count maps from LogDrinkFragment
+     */
+    public void updateCounts(Map<Integer, Integer> newCounts) {
+        this.drinkCounts = newCounts != null ? newCounts : new HashMap<>();
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public DrinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -50,6 +61,8 @@ public class LogDrinkAdapter extends RecyclerView.Adapter<LogDrinkAdapter.DrinkV
     @Override
     public void onBindViewHolder(@NonNull DrinkViewHolder holder, int position) {
         DrinkModel drink = drinks.get(position);
+        int dCount = drinkCounts.getOrDefault(drink.id, 0);
+        holder.count.setText(String.valueOf(dCount));
         holder.name.setText(drink.name);
         holder.ml.setText(drink.ml + "ml");
         holder.name.setTextColor(drink.colour);
@@ -74,11 +87,12 @@ public class LogDrinkAdapter extends RecyclerView.Adapter<LogDrinkAdapter.DrinkV
     }
 
     public static class DrinkViewHolder extends RecyclerView.ViewHolder {
-        TextView name, ml;
+        TextView count, name, ml;
         ImageView icon;
 
         public DrinkViewHolder(@NonNull View itemView) {
             super(itemView);
+            count = itemView.findViewById(R.id.tv_count);
             name = itemView.findViewById(R.id.tv_item_name);
             ml = itemView.findViewById(R.id.tv_item_ml);
             icon = itemView.findViewById(R.id.iv_item_icon);

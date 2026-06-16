@@ -5,7 +5,10 @@
     tools:context="com.example.hydration.MainActivity">
     <item
         android:id="@+id/set_drinks"
-        android:orderInCategory="100"
         android:title="Drink Configurator"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/add_history"
+        android:title="Add History"
         app:showAsAction="never" />
 </menu>

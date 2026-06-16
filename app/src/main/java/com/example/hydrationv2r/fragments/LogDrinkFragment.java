@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.example.hydrationv2r.models.DrinkModel;
 import com.example.hydrationv2r.viewmodels.HydrateViewModel;
 
 import java.util.List;
+import java.util.Map;
 
 public class LogDrinkFragment extends Fragment {
 
@@ -41,6 +43,10 @@ public class LogDrinkFragment extends Fragment {
         drawAddDrinkButtons();
 
         viewModel = new ViewModelProvider(requireActivity()).get(HydrateViewModel.class);
+
+        viewModel.getTodayTotal().observe(getViewLifecycleOwner(), total -> {
+            refreshButtonCounts();
+        });
     }
 
 
@@ -57,7 +63,13 @@ public class LogDrinkFragment extends Fragment {
             gridAdapter = new LogDrinkAdapter(drinkList, new LogDrinkAdapter.OnDrinkClickListener() {
                 @Override
                 public void onDrinkClick(DrinkModel drink) {
-                    viewModel.addDrink(drink.id);
+                    int result = viewModel.addDrink(drink.id);
+                    if (result == 1) {
+                        Toast.makeText(getContext(), "Failed to add drink", Toast.LENGTH_LONG).show();
+                    }
+                    else if (result == 2) {
+                        Toast.makeText(getContext(), "Failed to add drink: Exceeded daily count limit", Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override
@@ -71,6 +83,13 @@ public class LogDrinkFragment extends Fragment {
             gridRecyclerView.setAdapter(gridAdapter);
         } else {
             gridAdapter.setDrinks(drinkList);
+        }
+    }
+
+    private void refreshButtonCounts() {
+        if (gridAdapter != null && getContext() != null) {
+            Map<Integer, Integer> dynamicCounts = DatabaseHelper.getInstance(getContext()).getTodayDrinkCounts();
+            gridAdapter.updateCounts(dynamicCounts);
         }
     }
 }

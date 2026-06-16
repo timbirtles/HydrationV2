@@ -4,23 +4,23 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.hydrationv2r.R;
@@ -33,6 +33,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 
 public class HydrateFragment extends Fragment {
 
@@ -129,6 +130,9 @@ public class HydrateFragment extends Fragment {
                         .commit();
                 return true;
             }
+            else if (itemId == R.id.add_history) {
+                showHistoryInjectionDialog();
+            }
 
             // TODO: Handle other menu item IDs
             return false;
@@ -142,13 +146,6 @@ public class HydrateFragment extends Fragment {
         super.onResume();
         tv_dateTitle.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy")));
         viewModel.refreshTodayTotal();
-    }
-
-    public void changeChildFragment() {
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container_view, new LogDrinkFragment())
-                .addToBackStack(null)
-                .commit();
     }
 
     public void setupToggleView() {
@@ -199,5 +196,75 @@ public class HydrateFragment extends Fragment {
     private void pulseText(TextView tv) {
         ObjectAnimator.ofFloat(tv, "scaleX", 1f, 1.15f, 1f).setDuration(500).start();
         ObjectAnimator.ofFloat(tv, "scaleY", 1f, 1.15f, 1f).setDuration(500).start();
+    }
+
+
+    /**
+     * Helper testing function that shows a chain of pickers to inject custom historical
+     * data records directly into the SQLite database table.
+     */
+    public void showHistoryInjectionDialog() {
+        Calendar calendar = Calendar.getInstance();
+
+        new DatePickerDialog(requireContext(), (dateView, year, month, dayOfMonth) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            new TimePickerDialog(requireContext(), (timeView, hourOfDay, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                // Calculate the timestamp in absolute milliseconds
+                long injectedEpochMilli = calendar.getTimeInMillis();
+
+                // Build a layout to input IDs and Sizes manually
+                android.widget.LinearLayout dialogLayout = new android.widget.LinearLayout(requireContext());
+                dialogLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+                dialogLayout.setPadding(50, 40, 50, 10);
+
+                final EditText etDrinkId = new EditText(requireContext());
+                etDrinkId.setHint("Drink ID Template (e.g. 1=Tea, 2=Water, 3=Coffee)");
+                etDrinkId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+                dialogLayout.addView(etDrinkId);
+
+                final EditText etAmountMl = new EditText(requireContext());
+                etAmountMl.setHint("Amount size to log (mL)");
+                etAmountMl.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+                dialogLayout.addView(etAmountMl);
+
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Simulate Mock Log Entry")
+                        .setMessage("Specify mock structural components to register at: " +
+                                java.time.Instant.ofEpochMilli(injectedEpochMilli)
+                                        .atZone(java.time.ZoneId.systemDefault()).toString())
+                        .setView(dialogLayout)
+                        .setPositiveButton("Inject Row", (dialog, which) -> {
+                            String idStr = etDrinkId.getText().toString().trim();
+                            String amountStr = etAmountMl.getText().toString().trim();
+
+                            if (!idStr.isEmpty() && !amountStr.isEmpty()) {
+                                int drinkId = Integer.parseInt(idStr);
+                                int amountMl = Integer.parseInt(amountStr);
+
+                                // Write transaction log downstream directly to database
+                                DatabaseHelper.getInstance(getContext()).logDrink(injectedEpochMilli, drinkId, amountMl);
+
+                                // Update the livedata views inside the session screen layout
+                                viewModel.refreshTodayTotal();
+
+                                Toast.makeText(getContext(), "Injected mock log success!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Fields cannot be left blank", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
+
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 }

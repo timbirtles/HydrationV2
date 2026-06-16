@@ -1,6 +1,7 @@
 package com.example.hydrationv2r.viewmodels;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -26,14 +27,20 @@ public class HydrateViewModel extends AndroidViewModel {
      * Records a hydration event to the database and refreshes the daily total
      * @param drinkId The unique ID of the drink type being logged
      */
-    public void addDrink(int drinkId) {
-        DrinkModel drink = db.getDrinkById(drinkId);
-        if (drink != null) {
-            long timestamp = Instant.now().toEpochMilli();
-            db.logDrink(String.valueOf(timestamp), drinkId, drink.ml);
+    public int addDrink(int drinkId) {
+        try {
+            DrinkModel drink = db.getDrinkById(drinkId);
+            int count = db.getTodayDrinkCounts().getOrDefault(drinkId, 0);
+            if (drink != null && count < 99) {
+                long timestamp = Instant.now().toEpochMilli();
+                db.logDrink(timestamp, drinkId, drink.ml);
+                refreshTodayTotal();
+                return 0;
+            }
+            return 2;
+        } catch (Exception e) {
+            return 1;
         }
-
-        refreshTodayTotal();
     }
 
     public LiveData<Integer> getTodayTotal() {
