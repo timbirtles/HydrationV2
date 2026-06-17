@@ -11,4 +11,8 @@
         android:id="@+id/add_history"
         android:title="Add History"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/reset_today"
+        android:title="Reset Today"
+        app:showAsAction="never" />
 </menu>

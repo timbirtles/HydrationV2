@@ -1,6 +1,7 @@
 package com.example.hydrationv2r.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.widget.Toast.LENGTH_SHORT;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -133,6 +134,11 @@ public class HydrateFragment extends Fragment {
             else if (itemId == R.id.add_history) {
                 showHistoryInjectionDialog();
             }
+            else if (itemId == R.id.reset_today) {
+                DatabaseHelper.getInstance(getContext()).resetTodayHydration();
+                viewModel.refreshTodayTotal();
+                Toast.makeText(getContext(), "Reset today's intake.", LENGTH_SHORT).show();
+            }
 
             // TODO: Handle other menu item IDs
             return false;
@@ -255,9 +261,9 @@ public class HydrateFragment extends Fragment {
                                 // Update the livedata views inside the session screen layout
                                 viewModel.refreshTodayTotal();
 
-                                Toast.makeText(getContext(), "Injected mock log success!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Injected mock log success!", LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(getContext(), "Fields cannot be left blank", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Fields cannot be left blank", LENGTH_SHORT).show();
                             }
                         })
                         .setNegativeButton("Cancel", null)
