@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.hydration.MainActivity">
     <item
+        android:id="@+id/update_goal"
+        android:title="Update Goal"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/set_drinks"
         android:title="Drink Configurator"
         app:showAsAction="never" />

@@ -1,6 +1,7 @@
 package com.example.hydrationv2r.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 
 import android.animation.ObjectAnimator;
@@ -10,6 +11,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +96,7 @@ public class HydrateFragment extends Fragment {
             // Set UI progress indicators
             cpi_progressIndicator.setProgress(progress, true);
             tv_textPercent.setText(progress + "% complete");
-            tv_goalText.setText("of " + goalFormatted + " goal");
+            tv_goalText.setText("of " + goalFormatted + "L goal");
 
             viewModel.checkGoal(total, goal);
             // Pulse text and change colour if goal reached
@@ -139,6 +141,9 @@ public class HydrateFragment extends Fragment {
                 viewModel.refreshTodayTotal();
                 Toast.makeText(getContext(), "Reset today's intake.", LENGTH_SHORT).show();
             }
+            else if (itemId == R.id.update_goal) {
+                updateGoal();
+            }
 
             // TODO: Handle other menu item IDs
             return false;
@@ -147,6 +152,7 @@ public class HydrateFragment extends Fragment {
         // Display the popup over the UI
         popup.show();
     }
+
 
     public void onResume() {
         super.onResume();
@@ -204,7 +210,49 @@ public class HydrateFragment extends Fragment {
         ObjectAnimator.ofFloat(tv, "scaleY", 1f, 1.15f, 1f).setDuration(500).start();
     }
 
+    private void updateGoal() {
+        android.widget.LinearLayout dialogLayout = new android.widget.LinearLayout(requireContext());
+        dialogLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 40, 50, 10);
 
+        final EditText etGoal = new EditText(requireContext());
+        etGoal.setHint("2500");
+        etGoal.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        dialogLayout.addView(etGoal);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Update Goal")
+                .setMessage("Update your daily goal")
+                .setView(dialogLayout)
+                .setPositiveButton("Update", (dialog, which) -> {
+                    String amountStr = etGoal.getText().toString().trim();
+                    int amount = 0;
+
+                    if (amountStr.isEmpty()) {
+                        Toast.makeText(getContext(), "Fields cannot be left blank", LENGTH_LONG).show();
+                        return;
+                    }
+                    try {
+                        amount = Integer.parseInt(amountStr);
+                        if (amount <= 0) {
+                            Toast.makeText(getContext(), "Goal must be a number greater than 0", LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                    catch (Exception e) {
+                        Log.e("Update Goal", "Failed to convert input goal to int: " + e);
+                        Toast.makeText(getContext(), "Goal must be a number greater than 0", LENGTH_LONG).show();
+                        return;
+                    }
+
+                    SharedPreferences preferences = getActivity().getSharedPreferences("hydration_preferences", MODE_PRIVATE);
+                    preferences.edit().putInt("goal", amount).apply();
+                    viewModel.refreshTodayTotal();
+                    Toast.makeText(getContext(), "Goal updated", LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
     /**
      * Helper testing function that shows a chain of pickers to inject custom historical
      * data records directly into the SQLite database table.

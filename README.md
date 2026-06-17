@@ -19,7 +19,7 @@ This requires a fundamental rewrite of the database architecture and a refresh o
 - [x] View the days history (drink type, size, time), ~~time plot🔥~~ and delete individual logs
 - [x] Add and customise drinks
 - [x] Update hydration goal
-- [ ] Reset the days progress
+- [x] Reset the days progress
 - [ ] View the weeks history with day introspection and weekly statistics
 - [ ] View the months history with day introspection and monthly statistics 🔥
 - [ ] Enable/Disable a day from being included in statistics
